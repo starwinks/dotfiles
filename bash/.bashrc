@@ -134,25 +134,17 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 
-
-# --- 自动化代理分流配置 ---
-WIN_IP=$(ip route show default | awk '/default/ {print $3}')
+# 网络设置
+WIN_IP="127.0.0.1"
 PROXY_PORT="7890"
 
-if [ -n "$WIN_IP" ]; then
-    # 默认出口设为 Windows Clash (访问外网)
-    export http_proxy="http://${WIN_IP}:${PROXY_PORT}"
-    export https_proxy="http://${WIN_IP}:${PROXY_PORT}"
-    export all_proxy="http://${WIN_IP}:${PROXY_PORT}"
+export http_proxy="http://${WIN_IP}:${PROXY_PORT}"
+export https_proxy="http://${WIN_IP}:${PROXY_PORT}"
+export all_proxy="http://${WIN_IP}:${PROXY_PORT}"
 
-    # 【关键】排除本地和校内流量 (让它们不走 7890，而是寻找本地 SOCKS5 或直连)
-    # 包含了本地回环、WSL与主机通信、南大 IP 段、南大域名
-    export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP},.nju.edu.cn,114.212.0.0/16"
-    
-    echo "Hello, starwink! External proxy initialized."
-else
-    echo "Hello, China!"
-fi
+# 【关键】排除本地和校内流量 (让它们不走 7890，而是寻找本地 SOCKS5 或直连)
+# 包含了本地回环、WSL与主机通信、南大 IP 段、南大域名
+export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP},.nju.edu.cn,114.212.0.0/16"
 
 # 反向隧道：将目标服务器的 1080 端口转发至本地 Windows 代理
 function star_proxy() {
