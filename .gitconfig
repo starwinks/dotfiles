@@ -1,0 +1,12 @@
+[user]
+	email = 241220117@smail.nju.edu.cn
+	name = starwink
+[core]
+	editor = vim
+[init]
+	defaultBranch = main
+[alias]
+	[alias]
+    lg = log --graph --abbrev-commit \
+         --pretty=format: \
+		 '%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'

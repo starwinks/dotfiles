@@ -1,0 +1,5 @@
+channels:
+  - defaults
+
+channel_priority: flexible
+auto_activate: false
