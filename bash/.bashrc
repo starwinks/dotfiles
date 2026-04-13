@@ -174,7 +174,6 @@ function star_proxy() {
 alias ec_run='all_proxy=socks5h://127.0.0.1:1080'
 
 alias starttunnel='cloudflared tunnel --config ~/.cloudflared/config.yml run starserver'
-. "$HOME/.cargo/env"
 
 alias ec='docker run -d --device /dev/net/tun --cap-add NET_ADMIN -ti -p 127.0.0.1:1080:1080 -p 127.0.0.1:8888:8888 -v /tmp/.X11-unix:/tmp/.X11-unix -e EC_VER=7.6.7 -e DISPLAY hagb/docker-easyconnect:vncless-7.6.7'
 alias eckill='docker ps -q --filter ancestor=hagb/docker-easyconnect:vncless-7.6.7 | xargs -r docker stop | xargs -r docker rm'
@@ -182,4 +181,3 @@ alias eckill='docker ps -q --filter ancestor=hagb/docker-easyconnect:vncless-7.6
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH="$HOME/.local/bin:$PATH"
