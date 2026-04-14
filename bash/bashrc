@@ -37,7 +37,8 @@ fi
 
 BASH_MODULES_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/modules"
 source "$BASH_MODULES_DIR/exports.bash"
-source "$BASH_MODULES_DIR/exports.bash"
+source "$BASH_MODULES_DIR/secrets.bash"
+source "$BASH_MODULES_DIR/func.bash"
 source "$BASH_MODULES_DIR/alias.bash"
 source "$BASH_MODULES_DIR/prompt.bash"
 
