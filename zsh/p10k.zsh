@@ -362,9 +362,9 @@
   #####################################[ vcs: git status ]######################################
   # Version control background colors.
   typeset -g POWERLEVEL9K_VCS_CLEAN_BACKGROUND=2
-  typeset -g POWERLEVEL9K_VCS_MODIFIED_BACKGROUND=3
+  typeset -g POWERLEVEL9K_VCS_MODIFIED_BACKGROUND=214
   typeset -g POWERLEVEL9K_VCS_UNTRACKED_BACKGROUND=2
-  typeset -g POWERLEVEL9K_VCS_CONFLICTED_BACKGROUND=3
+  typeset -g POWERLEVEL9K_VCS_CONFLICTED_BACKGROUND=196
   typeset -g POWERLEVEL9K_VCS_LOADING_BACKGROUND=8
 
   # Branch icon. Set this parameter to '\UE0A0 ' for the popular Powerline branch icon.
@@ -1014,7 +1014,7 @@
   #####################[ anaconda: conda environment (https://conda.io/) ]######################
   # Anaconda environment color.
   typeset -g POWERLEVEL9K_ANACONDA_FOREGROUND=0
-  typeset -g POWERLEVEL9K_ANACONDA_BACKGROUND=4
+  typeset -g POWERLEVEL9K_ANACONDA_BACKGROUND=117
 
   # Anaconda segment format. The following parameters are available within the expansion.
   #
