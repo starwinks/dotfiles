@@ -1,0 +1,75 @@
+# =============================================================================
+# ~/.zshrc - Oh My Zsh configuration with modular design
+# Source: ~/.dotfiles/zsh/zshrc
+# Managed via dotfiles git repo with symbolic links
+# =============================================================================
+
+# Enable Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Path to Oh My Zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Plugins
+plugins=(
+    git
+    z
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# =============================================================================
+# Module loading (similar to bash modular design)
+# =============================================================================
+ZSH_MODULES_DIR="$(dirname "$(readlink -f "${ZSH_SOURCE:-$0}")")/modules"
+
+# Load modules in order: exports -> secrets -> func -> alias
+source "$ZSH_MODULES_DIR/exports.zsh"
+source "$ZSH_MODULES_DIR/secrets.zsh"
+source "$ZSH_MODULES_DIR/func.zsh"
+source "$ZSH_MODULES_DIR/alias.zsh"
+
+# =============================================================================
+# User configuration
+# =============================================================================
+
+# PATH setup with deduplication
+typeset -U path PATH
+path=(
+    "$HOME/bin"
+    "$HOME/.local/bin"
+    $path
+)
+
+# Cargo environment
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Conda initialization
+__conda_setup="$('/home/starwink/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/starwink/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/starwink/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/starwink/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+# =============================================================================
+# P10k configuration
+# =============================================================================
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

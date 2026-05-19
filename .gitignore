@@ -1,2 +1,6 @@
 msg.md
 **/secrets.bash
+**/secrets.zsh
+*.png
+*.jpg
+*.tex

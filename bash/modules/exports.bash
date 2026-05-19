@@ -8,4 +8,4 @@ export http_proxy="http://${WIN_IP}:${PROXY_PORT}"
 export https_proxy="http://${WIN_IP}:${PROXY_PORT}"
 export all_proxy="http://${WIN_IP}:${PROXY_PORT}"
 # 本地回环, 校内流量等直连
-export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP},.nju.edu.cn,114.212.0.0/16"
+export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP}, .edu.cn,114.212.0.0/16"
