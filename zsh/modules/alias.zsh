@@ -23,4 +23,4 @@ alias ec='docker run -d --device /dev/net/tun --cap-add NET_ADMIN -ti -p 127.0.0
 alias eckill='docker ps -q --filter ancestor=hagb/docker-easyconnect:vncless-7.6.7 | xargs -r docker stop | xargs -r docker rm'
 
 # Markdown to PDF
-alias md2pdf='md-to-pdf --config-file ~/tools/md2pdf/config.js'
+alias md2pdf='md2pdf --config-file ~/tools/md2pdf/config.js'
