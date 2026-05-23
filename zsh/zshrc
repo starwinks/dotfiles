@@ -87,3 +87,6 @@ fi
 # P10k configuration
 # =============================================================================
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Homebrew (Linuxbrew) environment
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
