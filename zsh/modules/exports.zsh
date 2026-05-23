@@ -9,3 +9,45 @@ export all_proxy="http://${WIN_IP}:${PROXY_PORT}"
 
 # Local loopback, campus network traffic direct connection
 export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP},.edu.cn,114.212.0.0/16"
+
+# =============================================================================
+# Package Managers & Tool Environments
+# =============================================================================
+
+# Homebrew (Linuxbrew) environment
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+
+# PATH setup with deduplication
+typeset -U path PATH
+path=(
+    "$HOME/bin"
+    "$HOME/.local/bin"
+    $path
+)
+
+# Cargo environment
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+# Fast Node Manager (fnm)
+if (( $+commands[fnm] )); then
+  eval "$(fnm env --use-on-cd)"
+fi
+
+# Conda (lazy loaded)
+if [ -f "/home/starwink/miniconda3/bin/conda" ]; then
+  conda() {
+    unset -f conda
+    __conda_setup="$('/home/starwink/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+      eval "$__conda_setup"
+    else
+      if [ -f "/home/starwink/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/starwink/miniconda3/etc/profile.d/conda.sh"
+      else
+        export PATH="/home/starwink/miniconda3/bin:$PATH"
+      fi
+    fi
+    unset __conda_setup
+    conda "$@"
+  }
+fi
