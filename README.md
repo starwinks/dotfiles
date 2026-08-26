@@ -96,7 +96,8 @@ bash deploy.sh
 writes below the selected home and data directories and never uses `sudo`, `apt`,
 `chsh` or a system-wide prefix.
 
-The managed links are limited to Conda, Git, npm, Neovim, SSH, uv, Vim and Zsh.
+The managed links are limited to Conda, Git, fnm/Node/npm, Neovim, SSH, uv, Vim
+and Zsh.
 Bash, `.profile`, apt sources and repository machine-specific modules are outside
 deploy's scope.
 
@@ -107,11 +108,11 @@ bash deploy.sh --home /home/starwink --data /data/starwink
 ```
 
 The home directory stores symlinks and small configuration files. The data directory
-stores user-installed applications, Conda packages/environments, uv cache/tools/Python,
-npm CLI/global packages and Neovim plugin data. Passing the same path for both is
-supported.
+stores user-installed applications, fnm-managed Node versions, Conda
+packages/environments, uv cache/tools/Python, npm global packages and Neovim plugin
+data. Passing the same path for both is supported.
 
-The required applications are `zsh`, `nvim`, `uv`, npm and Miniconda.
+The required applications are `zsh`, `nvim`, `uv`, `fnm`, npm and Miniconda.
 Existing executables are detected first. Missing applications are installed under
 `--data`; alternatively, pass an existing path such as:
 
@@ -120,9 +121,16 @@ bash deploy.sh --home /home/starwink --data /data/starwink \
   --zsh-path /data/starwink/bin/zsh \
   --nvim-path /data/starwink/bin/nvim \
   --uv-path /data/starwink/bin/uv \
+  --fnm-path /data/starwink/bin/fnm \
   --conda-path /data/starwink/apps/miniconda \
   --no-install
 ```
+
+When npm is missing, deploy uses fnm to install the selected Node version (LTS by
+default), so Node and npm remain inside `--data` and no system-wide Node/npm is
+installed. Use `--node-version VERSION` and `--node-mirror URL` to override the
+fnm-managed Node version and download source. Installing fnm itself requires an
+existing `unzip` command; deploy does not install system packages or use sudo.
 
 Useful modes:
 

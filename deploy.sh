@@ -26,6 +26,8 @@ PYPI_INDEX_OVERRIDE=""
 UV_INSTALLER_URL_OVERRIDE=""
 CONDA_CHANNEL_OVERRIDE=""
 CONDA_INSTALLER_URL_OVERRIDE=""
+NODE_MIRROR_OVERRIDE=""
+FNM_NODE_VERSION="lts"
 NVIM_VERSION="latest"
 
 declare -A PROVIDED_PATHS=()
@@ -63,6 +65,7 @@ Existing application options:
   --zsh-path PATH             Use an existing zsh executable
   --nvim-path PATH            Use an existing nvim executable
   --uv-path PATH              Use an existing uv executable
+  --fnm-path PATH              Use an existing fnm executable
   --npm-path PATH             Use an existing npm executable
   --conda-path PATH           Use an existing Conda prefix or conda executable
   --oh-my-zsh-path PATH       Use an existing Oh My Zsh directory
@@ -74,6 +77,8 @@ Installation options:
   --uv-installer-url URL      uv installer URL override
   --conda-channel URL         Conda channel URL override
   --conda-installer-url URL   Miniconda installer URL override
+  --node-mirror URL           fnm's Node distribution mirror override
+  --node-version VERSION      Node version managed by fnm or lts (default: lts)
   --github-base URL           GitHub download base (default: https://github.com)
   --nvim-version VERSION      Neovim version or latest (default: latest)
   --no-install                Never download or install missing applications
@@ -123,6 +128,7 @@ set_option_value() {
         --zsh-path) PROVIDED_PATHS[zsh]="$value" ;;
         --nvim-path) PROVIDED_PATHS[nvim]="$value" ;;
         --uv-path) PROVIDED_PATHS[uv]="$value" ;;
+        --fnm-path) PROVIDED_PATHS[fnm]="$value" ;;
         --npm-path) PROVIDED_PATHS[npm]="$value" ;;
         --conda-path) PROVIDED_PATHS[conda]="$value" ;;
         --oh-my-zsh-path) PROVIDED_PATHS[ohmyzsh]="$value" ;;
@@ -132,6 +138,8 @@ set_option_value() {
         --uv-installer-url) UV_INSTALLER_URL_OVERRIDE="$value" ;;
         --conda-channel) CONDA_CHANNEL_OVERRIDE="$value" ;;
         --conda-installer-url) CONDA_INSTALLER_URL_OVERRIDE="$value" ;;
+        --node-mirror) NODE_MIRROR_OVERRIDE="$value" ;;
+        --node-version) FNM_NODE_VERSION="$value" ;;
         --github-base) GITHUB_BASE="$value" ;;
         --nvim-version) NVIM_VERSION="$value" ;;
         *) die "unsupported option: $option" ;;
@@ -161,12 +169,12 @@ parse_args() {
                 DRY_RUN=1
                 INSTALL_MISSING=0
                 ;;
-            --home|--data|--repo|--zsh-path|--nvim-path|--uv-path|--npm-path|--conda-path|--oh-my-zsh-path|--mirror|--npm-registry|--pypi-index|--uv-installer-url|--conda-channel|--conda-installer-url|--github-base|--nvim-version)
+            --home|--data|--repo|--zsh-path|--nvim-path|--uv-path|--fnm-path|--npm-path|--conda-path|--oh-my-zsh-path|--mirror|--npm-registry|--pypi-index|--uv-installer-url|--conda-channel|--conda-installer-url|--node-mirror|--node-version|--github-base|--nvim-version)
                 require_value "$1" "${2:-}"
                 set_option_value "$1" "$2"
                 shift
                 ;;
-            --home=*|--data=*|--repo=*|--zsh-path=*|--nvim-path=*|--uv-path=*|--npm-path=*|--conda-path=*|--oh-my-zsh-path=*|--mirror=*|--npm-registry=*|--pypi-index=*|--uv-installer-url=*|--conda-channel=*|--conda-installer-url=*|--github-base=*|--nvim-version=*)
+            --home=*|--data=*|--repo=*|--zsh-path=*|--nvim-path=*|--uv-path=*|--fnm-path=*|--npm-path=*|--conda-path=*|--oh-my-zsh-path=*|--mirror=*|--npm-registry=*|--pypi-index=*|--uv-installer-url=*|--conda-channel=*|--conda-installer-url=*|--node-mirror=*|--node-version=*|--github-base=*|--nvim-version=*)
                 option="${1%%=*}"
                 value="${1#*=}"
                 require_value "$option" "$value"
@@ -268,12 +276,14 @@ configure_sources() {
         current)
             NPM_REGISTRY="${current_npm:-https://registry.npmmirror.com/}"
             PYPI_INDEX="${current_pypi:-https://mirrors.nju.edu.cn/pypi/web/simple}"
+            NODE_MIRROR="https://npmmirror.com/mirrors/node"
             CONDA_CHANNEL="https://mirrors.nju.edu.cn/anaconda/cloud/conda-forge"
             CONDA_INSTALLER_BASE="https://mirrors.nju.edu.cn/anaconda/miniconda"
             ;;
         official)
             NPM_REGISTRY="https://registry.npmjs.org/"
             PYPI_INDEX="https://pypi.org/simple"
+            NODE_MIRROR="https://nodejs.org/dist"
             CONDA_CHANNEL="https://conda.anaconda.org/conda-forge"
             CONDA_INSTALLER_BASE="https://repo.anaconda.com/miniconda"
             ;;
@@ -283,8 +293,10 @@ configure_sources() {
             [[ -n "$UV_INSTALLER_URL_OVERRIDE" ]] || die '--mirror custom requires --uv-installer-url'
             [[ -n "$CONDA_CHANNEL_OVERRIDE" ]] || die '--mirror custom requires --conda-channel'
             [[ -n "$CONDA_INSTALLER_URL_OVERRIDE" ]] || die '--mirror custom requires --conda-installer-url'
+            [[ -n "$NODE_MIRROR_OVERRIDE" ]] || die '--mirror custom requires --node-mirror'
             NPM_REGISTRY="$NPM_REGISTRY_OVERRIDE"
             PYPI_INDEX="$PYPI_INDEX_OVERRIDE"
+            NODE_MIRROR="$NODE_MIRROR_OVERRIDE"
             CONDA_CHANNEL="$CONDA_CHANNEL_OVERRIDE"
             CONDA_INSTALLER_BASE="${CONDA_INSTALLER_URL_OVERRIDE%/*}"
             ;;
@@ -292,16 +304,19 @@ configure_sources() {
 
     [[ -n "$NPM_REGISTRY_OVERRIDE" ]] && NPM_REGISTRY="$NPM_REGISTRY_OVERRIDE"
     [[ -n "$PYPI_INDEX_OVERRIDE" ]] && PYPI_INDEX="$PYPI_INDEX_OVERRIDE"
+    [[ -n "$NODE_MIRROR_OVERRIDE" ]] && NODE_MIRROR="$NODE_MIRROR_OVERRIDE"
     [[ -n "$CONDA_CHANNEL_OVERRIDE" ]] && CONDA_CHANNEL="$CONDA_CHANNEL_OVERRIDE"
 
     export NPM_CONFIG_REGISTRY="$NPM_REGISTRY"
     export UV_INDEX_URL="$PYPI_INDEX"
+    export FNM_NODE_DIST_MIRROR="$NODE_MIRROR"
     export DOTFILES_GITHUB_BASE="$GITHUB_BASE"
     export CONDARC="$REPO_DIR/conda/condarc"
 
     info "source profile: $MIRROR"
     info "  npm:    $NPM_REGISTRY"
     info "  PyPI:   $PYPI_INDEX"
+    info "  Node:   $NODE_MIRROR"
     info "  Conda:  $CONDA_CHANNEL"
     info "  Miniconda: $CONDA_INSTALLER_BASE"
 }
@@ -442,6 +457,15 @@ linux_archive_arch() {
     esac
 }
 
+fnm_release_asset() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s' fnm-linux ;;
+        aarch64|arm64) printf '%s' fnm-arm64 ;;
+        arm|armv7|armv7l) printf '%s' fnm-arm32 ;;
+        *) die "unsupported Linux architecture for fnm: $(uname -m)" ;;
+    esac
+}
+
 linux_conda_arch() {
     case "$(uname -m)" in
         x86_64|amd64) printf '%s' x86_64 ;;
@@ -483,38 +507,91 @@ install_nvim() {
     rm -rf -- "$tmp"
 }
 
-install_npm() {
-    local node_bin npm_root wrapper tarball
-    node_bin="$(find_command node)"
-    [[ -n "$node_bin" ]] || die 'npm is missing and no existing node executable was found; pass --npm-path PATH'
-    npm_root="$DATA_DIR/apps/npm"
-    wrapper="$DATA_DIR/bin/npm"
+install_fnm() {
+    local asset archive url target extracted
+    asset="$(fnm_release_asset)"
+    archive="${asset}.zip"
+    url="${GITHUB_BASE%/}/Schniz/fnm/releases/latest/download/${archive}"
+    target="$DATA_DIR/bin/fnm"
     if ((DRY_RUN)); then
-        info "[dry-run] install npm under $npm_root using $node_bin"
-        APP_PATHS[npm]="$wrapper"
+        info "[dry-run] install fnm from $url into $target"
+        APP_PATHS[fnm]="$target"
         return 0
     fi
-    [[ ! -e "$npm_root" ]] || die "npm target already exists but is not usable: $npm_root"
+
+    local unzip_bin
+    unzip_bin="$(find_command unzip)"
+    [[ -n "$unzip_bin" ]] || die 'fnm installation requires unzip; install unzip or pass --fnm-path PATH'
+    [[ ! -e "$target" && ! -L "$target" ]] || die "fnm target already exists but is not usable: $target"
+
     local tmp
     tmp="$(temporary_directory)"
-    download_file "${NPM_REGISTRY%/}/npm/latest" "$tmp/npm.json"
-    tarball="$(sed -En 's/.*"tarball"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' "$tmp/npm.json" | head -n 1 | sed 's#\\/#/#g')"
-    [[ -n "$tarball" ]] || die "could not find npm tarball in ${NPM_REGISTRY%/}/npm/latest"
-    download_file "$tarball" "$tmp/npm.tgz"
-    tar -xzf "$tmp/npm.tgz" -C "$tmp"
-    [[ -f "$tmp/package/bin/npm-cli.js" ]] || die 'npm archive has unexpected layout'
-    make_dir "$DATA_DIR/apps"
-    mv -- "$tmp/package" "$npm_root"
+    download_file "$url" "$tmp/$archive"
+    make_dir "$tmp/extracted"
+    "$unzip_bin" -q "$tmp/$archive" -d "$tmp/extracted"
+    if [[ -x "$tmp/extracted/fnm" ]]; then
+        extracted="$tmp/extracted/fnm"
+    elif [[ -x "$tmp/extracted/$asset/fnm" ]]; then
+        extracted="$tmp/extracted/$asset/fnm"
+    else
+        die 'fnm archive has unexpected layout'
+    fi
     make_dir "$DATA_DIR/bin"
-    local temporary_wrapper="$wrapper.tmp.$$"
-    {
-        printf '#!/usr/bin/env bash\n'
-        printf 'exec %q %q "$@"\n' "$node_bin" "$npm_root/bin/npm-cli.js"
-    } > "$temporary_wrapper"
-    chmod 755 "$temporary_wrapper"
-    mv -- "$temporary_wrapper" "$wrapper"
-    APP_PATHS[npm]="$wrapper"
+    mv -- "$extracted" "$target"
+    chmod 755 "$target"
+    APP_PATHS[fnm]="$target"
     rm -rf -- "$tmp"
+}
+
+setup_fnm_environment() {
+    local fnm_bin="${APP_PATHS[fnm]}"
+    export FNM_DIR="$DATA_DIR/.local/share/fnm"
+    export FNM_NODE_DIST_MIRROR="$NODE_MIRROR"
+    eval "$(FNM_DIR="$FNM_DIR" FNM_NODE_DIST_MIRROR="$FNM_NODE_DIST_MIRROR" \
+        "$fnm_bin" env --use-on-cd --shell bash)"
+}
+
+ensure_fnm_node() {
+    local fnm_bin="${APP_PATHS[fnm]}"
+    local node_bin npm_bin version
+
+    if ((DRY_RUN)); then
+        info "[dry-run] use fnm under $DATA_DIR/.local/share/fnm to install Node $FNM_NODE_VERSION"
+        APP_PATHS[npm]="$DATA_DIR/bin/npm"
+        return 0
+    fi
+
+    setup_fnm_environment
+    node_bin="$(find_command node)"
+    npm_bin="$(find_command npm)"
+    if [[ -z "$node_bin" || -z "$npm_bin" ]]; then
+        if [[ "$FNM_NODE_VERSION" == lts ]]; then
+            info 'installing Node LTS through fnm'
+            FNM_DIR="$FNM_DIR" FNM_NODE_DIST_MIRROR="$FNM_NODE_DIST_MIRROR" \
+                "$fnm_bin" install --lts --use
+            FNM_DIR="$FNM_DIR" FNM_NODE_DIST_MIRROR="$FNM_NODE_DIST_MIRROR" \
+                "$fnm_bin" default lts-latest >/dev/null 2>&1 || true
+        else
+            version="$FNM_NODE_VERSION"
+            FNM_DIR="$FNM_DIR" FNM_NODE_DIST_MIRROR="$FNM_NODE_DIST_MIRROR" \
+                "$fnm_bin" install "$version" --use
+            FNM_DIR="$FNM_DIR" FNM_NODE_DIST_MIRROR="$FNM_NODE_DIST_MIRROR" \
+                "$fnm_bin" default "$version" >/dev/null 2>&1 || true
+        fi
+        setup_fnm_environment
+    fi
+
+    node_bin="$(find_command node)"
+    npm_bin="$(find_command npm)"
+    [[ -x "$node_bin" ]] || die 'fnm did not provide a usable node executable'
+    [[ -x "$npm_bin" ]] || die 'fnm did not provide a usable npm executable'
+    APP_PATHS[node]="$node_bin"
+    APP_PATHS[npm]="$npm_bin"
+}
+
+install_npm() {
+    [[ -n "${APP_PATHS[fnm]-}" ]] || die 'npm installation requires a usable fnm installation'
+    ensure_fnm_node
 }
 
 install_miniconda() {
@@ -651,6 +728,7 @@ resolve_or_install() {
         zsh) install_zsh ;;
         uv) install_uv ;;
         nvim) install_nvim ;;
+        fnm) install_fnm ;;
         npm) install_npm ;;
         *) die "no installer is defined for $app" ;;
     esac
@@ -661,7 +739,7 @@ check_dependencies() {
     local missing=0 app omz_dir lazy_root
 
     configure_sources
-    for app in conda zsh uv nvim npm; do
+    for app in conda zsh uv nvim fnm npm; do
         if [[ -n "${PROVIDED_PATHS[$app]-}" ]]; then
             if set_app_path "$app" "${PROVIDED_PATHS[$app]}"; then
                 success "using supplied $app: ${APP_PATHS[$app]}"
@@ -759,6 +837,7 @@ write_paths_file() {
         write_shell_assignment DOTFILES_ZSH_BIN "${APP_PATHS[zsh]:-$DATA_DIR/apps/zsh-env/bin/zsh}"
         write_shell_assignment DOTFILES_NVIM_BIN "${APP_PATHS[nvim]:-$DATA_DIR/bin/nvim}"
         write_shell_assignment DOTFILES_UV_BIN "${APP_PATHS[uv]:-$DATA_DIR/bin/uv}"
+        write_shell_assignment DOTFILES_FNM_BIN "${APP_PATHS[fnm]:-$DATA_DIR/bin/fnm}"
         write_shell_assignment DOTFILES_NPM_BIN "${APP_PATHS[npm]:-$DATA_DIR/bin/npm}"
         write_shell_assignment XDG_CONFIG_HOME "$TARGET_HOME/.config"
         write_shell_assignment XDG_DATA_HOME "$DATA_DIR/.local/share"
@@ -772,6 +851,8 @@ write_paths_file() {
         write_shell_assignment UV_PYTHON_INSTALL_DIR "$DATA_DIR/.local/share/uv/python"
         write_shell_assignment UV_INDEX_URL "$PYPI_INDEX"
         write_shell_assignment NPM_CONFIG_REGISTRY "$NPM_REGISTRY"
+        write_shell_assignment FNM_DIR "$DATA_DIR/.local/share/fnm"
+        write_shell_assignment FNM_NODE_DIST_MIRROR "$NODE_MIRROR"
         write_shell_assignment CONDA_CHANNEL "$CONDA_CHANNEL"
         write_shell_assignment DOTFILES_GITHUB_BASE "$GITHUB_BASE"
         write_shell_assignment CONDA_PKGS_DIRS "$DATA_DIR/.cache/conda/pkgs"
@@ -896,6 +977,7 @@ main() {
     resolve_or_install zsh
     resolve_or_install uv
     resolve_or_install nvim
+    resolve_or_install fnm
     resolve_or_install npm
     ensure_zsh_stack
 
