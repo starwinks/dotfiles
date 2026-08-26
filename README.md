@@ -17,12 +17,12 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 │   ├── p10k.zsh         # Powerlevel10k configuration (~/.p10k.zsh ->)
 │   └── modules/         # Modular components
 │       ├── exports.zsh  # Shared environment variables
-│       ├── exports.local.zsh # Machine-specific environment variables
+│       ├── exports.local.zsh # Machine-specific environment variables (local only)
 │       ├── secrets.zsh  # Sensitive tokens (gitignored)
 │       ├── func.zsh     # Shared custom functions
-│       ├── func.local.zsh # Machine-specific functions
+│       ├── func.local.zsh # Machine-specific functions (local only)
 │       ├── alias.zsh    # Shared command aliases
-│       └── alias.local.zsh # Machine-specific command aliases
+│       └── alias.local.zsh # Machine-specific command aliases (local only)
 │
 ├── nvim/                # Neovim configuration (~/.config/nvim ->)
 │   ├── init.lua         # Neovim entry point
@@ -57,6 +57,11 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ### exports.zsh / exports.bash
 - Shared PATH, Cargo, fnm and package/model mirrors
 - The Zsh machine-specific proxy, CUDA and Conda settings remain outside deploy's scope
+
+The `*.local.zsh` and `*.local.bash` files are machine-local files. They are
+ignored by Git and are never linked or copied by `deploy.sh`. The public
+`zsh/zshrc` only loads them when the generated machine-local paths file sets
+`DOTFILES_LOCAL_PROFILE=repo`.
 
 ### func.zsh / func.bash
 - Shared function modules are loaded before optional machine-specific modules
@@ -97,7 +102,7 @@ writes below the selected home and data directories and never uses `sudo`, `apt`
 `chsh` or a system-wide prefix.
 
 The managed links are limited to Conda, Git, fnm/Node/npm, Neovim, SSH, uv, Vim
-and Zsh.
+and Zsh. Machine-local modules are intentionally outside deploy's scope.
 Bash, `.profile`, apt sources and repository machine-specific modules are outside
 deploy's scope.
 

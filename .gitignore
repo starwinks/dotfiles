@@ -1,6 +1,9 @@
 msg.md
 **/secrets.bash
 **/secrets.zsh
+**/*.local.bash
+**/*.local.zsh
+apt/sources.list.d/*-local.list
 *.png
 *.jpg
 *.tex

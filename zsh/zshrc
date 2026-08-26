@@ -45,8 +45,8 @@ for module in exports.zsh secrets.zsh func.zsh alias.zsh; do
   [[ -r "$module_file" ]] && source "$module_file"
 done
 
-# Load repository machine-specific modules only when explicitly enabled by the
-# machine-local paths file. Server deployments default to none.
+# Load repository machine-specific modules only when the machine-local paths
+# file explicitly enables them. A fresh deployment defaults to none.
 if [[ "${DOTFILES_LOCAL_PROFILE:-none}" == repo ]]; then
   for module in exports.local.zsh func.local.zsh alias.local.zsh; do
     module_file="$ZSH_MODULES_DIR/$module"
