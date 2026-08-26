@@ -2,7 +2,7 @@
 	email = 241220117@smail.nju.edu.cn
 	name = starwink
 [core]
-	editor = vim
+	editor = nvim
 [init]
 	defaultBranch = main
 [alias]
@@ -14,3 +14,13 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[safe]
+	directory = /home/starwink/local-shell-mcp/workspaces/default/pos-enc
+	directory = /home/starwink/local-shell-mcp/workspaces/default/vibe-os
+[credential]
+	helper = cache
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
