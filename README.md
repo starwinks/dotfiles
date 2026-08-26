@@ -14,11 +14,15 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 │
 ├── zsh/                 # Zsh (Oh My Zsh) configuration
 │   ├── zshrc            # Main entry point (~/.zshrc ->)
+│   ├── p10k.zsh         # Powerlevel10k configuration (~/.p10k.zsh ->)
 │   └── modules/         # Modular components
-│       ├── exports.zsh  # Environment variables (proxy, etc.)
+│       ├── exports.zsh  # Shared environment variables
+│       ├── exports.local.zsh # Machine-specific environment variables
 │       ├── secrets.zsh  # Sensitive tokens (gitignored)
-│       ├── func.zsh     # Custom functions (star_proxy)
-│       └── alias.zsh    # Command aliases
+│       ├── func.zsh     # Shared custom functions
+│       ├── func.local.zsh # Machine-specific functions
+│       ├── alias.zsh    # Shared command aliases
+│       └── alias.local.zsh # Machine-specific command aliases
 │
 ├── bash/                # Bash configuration (legacy, still maintained)
 │   ├── bashrc           # Main entry point (~/.bashrc ->)
@@ -39,18 +43,17 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ## Module Details
 
 ### exports.zsh / exports.bash
-- `http_proxy`, `https_proxy`, `all_proxy` → Windows proxy (127.0.0.1:7890)
-- `no_proxy` → Direct connection rules (localhost, .edu.cn, etc.)
+- Shared PATH, Cargo and optional fnm setup
+- Machine-specific proxy, mirror, Conda and CUDA settings live in `*.local.*`
 
 ### func.zsh / func.bash
+- Shared function modules are loaded before optional machine-specific modules
 - `star_proxy <server>` → Creates SSH reverse tunnel for proxy forwarding
 
 ### alias.zsh / alias.bash
 - `ll`, `la`, `l` → ls variants with color
 - `proxy_off` → Unset all proxy variables
-- `starttunnel` → Cloudflare tunnel
-- `ec` / `eckill` → EasyConnect VPN container management
-- `md2pdf` → Markdown to PDF
+- Machine-specific aliases such as EasyConnect, md2pdf, cc-switch and llama live in `alias.local.*`
 
 ### secrets.zsh / secrets.bash
 - `MINERU_TOKEN` → OpenXLab API token
@@ -111,4 +114,4 @@ Both share the same conceptual structure (exports → secrets → func → alias
 - Terminal: Windows Terminal
 - Theme: Powerlevel10k (instant prompt enabled)
 - Plugins: git, z, zsh-autosuggestions, zsh-syntax-highlighting
-- Package Manager: Conda (Miniconda), NVM, Cargo
+- Package Manager: Conda (Miniconda), fnm, Cargo

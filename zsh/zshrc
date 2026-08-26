@@ -30,11 +30,19 @@ source $ZSH/oh-my-zsh.sh
 # =============================================================================
 ZSH_MODULES_DIR="${${(%):-%x}:A:h}/modules"
 
-# Load modules in order: exports -> secrets -> func -> alias
-source "$ZSH_MODULES_DIR/exports.zsh"
-source "$ZSH_MODULES_DIR/secrets.zsh"
-source "$ZSH_MODULES_DIR/func.zsh"
-source "$ZSH_MODULES_DIR/alias.zsh"
+# Load shared modules first. secrets.zsh is intentionally optional because it
+# is a per-machine, gitignored file.
+for module in exports.zsh secrets.zsh func.zsh alias.zsh; do
+  module_file="$ZSH_MODULES_DIR/$module"
+  [[ -r "$module_file" ]] && source "$module_file"
+done
+
+# Load machine-specific modules when they exist. These files are kept separate
+# so the shared modules remain portable across machines.
+for module in exports.local.zsh func.local.zsh alias.local.zsh; do
+  module_file="$ZSH_MODULES_DIR/$module"
+  [[ -r "$module_file" ]] && source "$module_file"
+done
 
 # =============================================================================
 # P10k configuration
