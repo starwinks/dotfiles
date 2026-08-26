@@ -1,6 +1,7 @@
-channels:
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-  - defaults
-
 channel_priority: flexible
 auto_activate: false
+show_channel_urls: true
+channels:
+  - https://mirrors.nju.edu.cn/anaconda/cloud/conda-forge/
+  - https://mirrors.nju.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.nju.edu.cn/anaconda/pkgs/free/

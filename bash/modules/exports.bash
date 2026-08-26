@@ -14,6 +14,13 @@ export no_proxy="localhost,127.0.0.1,::1,172.17.0.0/16,${WIN_IP}, .edu.cn,114.21
 # Package Managers & Tool Environments
 # =============================================================================
 
+# Homebrew mirrors (Aliyun)
+export HOMEBREW_API_DOMAIN="https://mirrors.aliyun.com/homebrew-bottles/api"
+export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.aliyun.com/homebrew-bottles"
+export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.aliyun.com/homebrew/brew.git"
+export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.aliyun.com/homebrew/homebrew-core.git"
+export HOMEBREW_CASK_GIT_REMOTE="https://mirrors.aliyun.com/homebrew/homebrew-cask.git"
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/starwink/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
