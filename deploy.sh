@@ -9,6 +9,7 @@ declare -A FILES=(
     ["bash/bashrc"]="$HOME/.bashrc"
     ["zsh/zshrc"]="$HOME/.zshrc"
     ["zsh/p10k.zsh"]="$HOME/.p10k.zsh"
+    ["nvim"]="$HOME/.config/nvim"
     ["git/gitconfig"]="$HOME/.gitconfig"
     ["ssh/config"]="$HOME/.ssh/config"
     ["conda/condarc"]="$HOME/.condarc"

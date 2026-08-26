@@ -24,6 +24,11 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 │       ├── alias.zsh    # Shared command aliases
 │       └── alias.local.zsh # Machine-specific command aliases
 │
+├── nvim/                # Neovim configuration (~/.config/nvim ->)
+│   ├── init.lua         # Neovim entry point
+│   ├── lua/              # Lua configuration and plugins
+│   └── lazy-lock.json    # Plugin lockfile
+│
 ├── bash/                # Bash configuration (legacy, still maintained)
 │   ├── bashrc           # Main entry point (~/.bashrc ->)
 │   └── modules/
@@ -62,6 +67,10 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ### prompt.bash (bash only)
 - Custom colored prompt (P10k handles this for zsh)
 
+### Neovim
+- The complete `~/.config/nvim` directory is managed by the `nvim/` symlink
+- LazyVim configuration and plugin lockfile are kept together in the repository
+
 ## Deployment
 
 ```bash
@@ -72,7 +81,7 @@ bash deploy.sh
 The deploy script:
 1. Backs up existing files (`.bak`)
 2. Removes old symlinks
-3. Creates new symlinks from `~/.dotfiles/<module>` to `~/.<module>`
+3. Creates new symlinks from `~/.dotfiles/<module>` to the corresponding home path, including `~/.config/nvim`
 4. Handles SSH config permissions (700 for ~/.ssh, 600 for config)
 5. Skips secrets files (must be created manually)
 
