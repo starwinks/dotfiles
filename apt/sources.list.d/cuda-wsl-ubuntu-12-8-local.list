@@ -1,0 +1,1 @@
+deb [signed-by=/usr/share/keyrings/cuda-8F17E96F-keyring.gpg] file:///var/cuda-repo-wsl-ubuntu-12-8-local /

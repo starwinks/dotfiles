@@ -10,6 +10,8 @@ declare -A FILES=(
     ["zsh/zshrc"]="$HOME/.zshrc"
     ["zsh/p10k.zsh"]="$HOME/.p10k.zsh"
     ["nvim"]="$HOME/.config/nvim"
+    ["uv/uv.toml"]="$HOME/.config/uv/uv.toml"
+    ["npm/npmrc"]="$HOME/.npmrc"
     ["git/gitconfig"]="$HOME/.gitconfig"
     ["ssh/config"]="$HOME/.ssh/config"
     ["conda/condarc"]="$HOME/.condarc"
@@ -57,6 +59,11 @@ for src in "${!FILES[@]}"; do
     # Set permissions for SSH config
     if [[ "$dest" == "$HOME/.ssh/config" ]]; then
         chmod 700 "$dest_parent"
+        chmod 600 "$src_file"
+    fi
+
+    # Keep npm user configuration private in case credentials are added later.
+    if [[ "$dest" == "$HOME/.npmrc" ]]; then
         chmod 600 "$src_file"
     fi
 

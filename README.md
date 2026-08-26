@@ -29,6 +29,13 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 │   ├── lua/              # Lua configuration and plugins
 │   └── lazy-lock.json    # Plugin lockfile
 │
+├── uv/                  # uv configuration (~/.config/uv/uv.toml ->)
+│   └── uv.toml           # Python package index configuration
+├── npm/                 # npm configuration (~/.npmrc ->)
+│   └── npmrc             # Node package registry configuration
+├── apt/                 # Current machine apt source snapshot (not auto-linked)
+│   └── sources.list.d/   # Ubuntu, Docker, GitHub CLI and CUDA sources
+│
 ├── bash/                # Bash configuration (legacy, still maintained)
 │   ├── bashrc           # Main entry point (~/.bashrc ->)
 │   └── modules/
@@ -71,6 +78,15 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 - The complete `~/.config/nvim` directory is managed by the `nvim/` symlink
 - LazyVim configuration and plugin lockfile are kept together in the repository
 
+### uv / npm / fnm
+- `uv/uv.toml` is linked to `~/.config/uv/uv.toml`
+- `npm/npmrc` is linked to `~/.npmrc`
+- fnm has no static user configuration; its shell initialization is in `exports.zsh`
+
+### apt
+- Active apt source files are kept as a snapshot under `apt/sources.list.d/`
+- They are not linked by `deploy.sh` because apt configuration is system-owned and distribution-specific
+
 ## Deployment
 
 ```bash
@@ -81,7 +97,7 @@ bash deploy.sh
 The deploy script:
 1. Backs up existing files (`.bak`)
 2. Removes old symlinks
-3. Creates new symlinks from `~/.dotfiles/<module>` to the corresponding home path, including `~/.config/nvim`
+3. Creates new symlinks from `~/.dotfiles/<module>` to the corresponding home path, including `~/.config/nvim`, `~/.config/uv/uv.toml` and `~/.npmrc`
 4. Handles SSH config permissions (700 for ~/.ssh, 600 for config)
 5. Skips secrets files (must be created manually)
 
