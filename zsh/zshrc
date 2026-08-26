@@ -4,13 +4,21 @@
 # Managed via dotfiles git repo with symbolic links
 # =============================================================================
 
+# Load machine-local paths before instant prompt and any other startup code.
+DOTFILES_PATHS_FILE="${DOTFILES_PATHS_FILE:-$HOME/.config/dotfiles/paths.env}"
+[[ -r "$DOTFILES_PATHS_FILE" ]] && source "$DOTFILES_PATHS_FILE"
+
+: "${DOTFILES_HOME:=$HOME}"
+: "${DOTFILES_DATA:=$DOTFILES_HOME}"
+export DOTFILES_HOME DOTFILES_DATA
+
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # Path to Oh My Zsh installation
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="${DOTFILES_OH_MY_ZSH_DIR:-$HOME/.oh-my-zsh}"
 
 # Theme
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -23,7 +31,7 @@ plugins=(
     zsh-syntax-highlighting
 )
 
-source $ZSH/oh-my-zsh.sh
+[[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # =============================================================================
 # Module loading (similar to bash modular design)
@@ -37,14 +45,18 @@ for module in exports.zsh secrets.zsh func.zsh alias.zsh; do
   [[ -r "$module_file" ]] && source "$module_file"
 done
 
-# Load machine-specific modules when they exist. These files are kept separate
-# so the shared modules remain portable across machines.
-for module in exports.local.zsh func.local.zsh alias.local.zsh; do
-  module_file="$ZSH_MODULES_DIR/$module"
-  [[ -r "$module_file" ]] && source "$module_file"
-done
+# Load repository machine-specific modules only when explicitly enabled by the
+# machine-local paths file. Server deployments default to none.
+if [[ "${DOTFILES_LOCAL_PROFILE:-none}" == repo ]]; then
+  for module in exports.local.zsh func.local.zsh alias.local.zsh; do
+    module_file="$ZSH_MODULES_DIR/$module"
+    [[ -r "$module_file" ]] && source "$module_file"
+  done
+fi
 
 # =============================================================================
 # P10k configuration
 # =============================================================================
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+if [[ -r "$HOME/.p10k.zsh" ]] && (( $+functions[p10k] )); then
+  source "$HOME/.p10k.zsh"
+fi

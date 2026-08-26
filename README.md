@@ -55,9 +55,8 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ## Module Details
 
 ### exports.zsh / exports.bash
-- Shared PATH, Cargo and optional fnm setup
-- Shared package/model mirrors are configured here
-- Machine-specific proxy, Conda runtime and CUDA settings live in `*.local.*`
+- Shared PATH, Cargo, fnm and package/model mirrors
+- The Zsh machine-specific proxy, CUDA and Conda settings remain outside deploy's scope
 
 ### func.zsh / func.bash
 - Shared function modules are loaded before optional machine-specific modules
@@ -66,7 +65,7 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ### alias.zsh / alias.bash
 - `ll`, `la`, `l` → ls variants with color
 - `proxy_off` → Unset all proxy variables
-- Machine-specific aliases such as EasyConnect, md2pdf, cc-switch and llama live in `alias.local.*`
+- Machine-specific Zsh aliases such as EasyConnect, md2pdf, cc-switch and llama live in `alias.local.zsh`
 
 ### secrets.zsh / secrets.bash
 - `MINERU_TOKEN` → OpenXLab API token
@@ -78,10 +77,9 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 - The complete `~/.config/nvim` directory is managed by the `nvim/` symlink
 - LazyVim configuration and plugin lockfile are kept together in the repository
 
-### uv / npm / fnm
+### uv / npm
 - `uv/uv.toml` is linked to `~/.config/uv/uv.toml`
 - `npm/npmrc` is linked to `~/.npmrc`
-- fnm has no static user configuration; its shell initialization is in `exports.zsh`
 
 ### apt
 - Active apt source files are kept as a snapshot under `apt/sources.list.d/`
@@ -94,12 +92,50 @@ cd ~/.dotfiles
 bash deploy.sh
 ```
 
-The deploy script:
-1. Backs up existing files (`.bak`)
-2. Removes old symlinks
-3. Creates new symlinks from `~/.dotfiles/<module>` to the corresponding home path, including `~/.config/nvim`, `~/.config/uv/uv.toml` and `~/.npmrc`
-4. Handles SSH config permissions (700 for ~/.ssh, 600 for config)
-5. Skips secrets files (must be created manually)
+`deploy.sh` supports both interactive use and direct command-line parameters. It only
+writes below the selected home and data directories and never uses `sudo`, `apt`,
+`chsh` or a system-wide prefix.
+
+The managed links are limited to Conda, Git, npm, Neovim, SSH, uv, Vim and Zsh.
+Bash, `.profile`, apt sources and repository machine-specific modules are outside
+deploy's scope.
+
+For a server with a small home directory, use:
+
+```bash
+bash deploy.sh --home /home/starwink --data /data/starwink
+```
+
+The home directory stores symlinks and small configuration files. The data directory
+stores user-installed applications, Conda packages/environments, uv cache/tools/Python,
+npm CLI/global packages and Neovim plugin data. Passing the same path for both is
+supported.
+
+The required applications are `zsh`, `nvim`, `uv`, npm and Miniconda.
+Existing executables are detected first. Missing applications are installed under
+`--data`; alternatively, pass an existing path such as:
+
+```bash
+bash deploy.sh --home /home/starwink --data /data/starwink \
+  --zsh-path /data/starwink/bin/zsh \
+  --nvim-path /data/starwink/bin/nvim \
+  --uv-path /data/starwink/bin/uv \
+  --conda-path /data/starwink/apps/miniconda \
+  --no-install
+```
+
+Useful modes:
+
+```bash
+bash deploy.sh --check --home /home/starwink --data /data/starwink
+bash deploy.sh --dry-run --home /home/starwink --data /data/starwink
+bash deploy.sh --yes --non-interactive --home /home/starwink --data /data/starwink
+```
+
+Use `--mirror current`, `--mirror official` or `--mirror custom` plus the URL
+overrides to choose download sources before installation. The deploy script does
+not load or modify any repository machine-specific module. Existing destination
+files are timestamp-backed up before symlinking.
 
 ## Secret Management
 
