@@ -44,7 +44,8 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 
 ### exports.zsh / exports.bash
 - Shared PATH, Cargo and optional fnm setup
-- Machine-specific proxy, mirror, Conda and CUDA settings live in `*.local.*`
+- Shared package/model mirrors are configured here
+- Machine-specific proxy, Conda runtime and CUDA settings live in `*.local.*`
 
 ### func.zsh / func.bash
 - Shared function modules are loaded before optional machine-specific modules
