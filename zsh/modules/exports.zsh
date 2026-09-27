@@ -1,11 +1,19 @@
 # Shared environment configuration.
 
-# Package manager and model download mirrors.
+# >>> mirrors >>>
+# Mirrors for Homebrew, uv, fnm, corepack and Hugging Face. Managed by
+# mirrors.sh: `bash mirrors.sh apply` rewrites this block, `bash mirrors.sh
+# probe` verifies the sources.
 export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+export HOMEBREW_CASK_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git"
 export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
 export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+export UV_PYTHON_INSTALL_MIRROR="https://mirror.nju.edu.cn/github-release/astral-sh/python-build-standalone"
+export COREPACK_NPM_REGISTRY="https://registry.npmmirror.com"
+export FNM_NODE_DIST_MIRROR="https://npmmirror.com/mirrors/node"
 export HF_ENDPOINT="https://hf-mirror.com"
+# <<< mirrors <<<
 
 # PATH setup with deduplication.
 typeset -U path PATH

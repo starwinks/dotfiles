@@ -16,3 +16,5 @@ alias l='ls -CF'
 
 # Proxy control
 alias proxy_off='unset http_proxy https_proxy all_proxy HTTPS_PROXY HTTP_PROXY ALL_PROXY no_proxy NO_PROXY'
+
+alias python=python3

@@ -9,4 +9,33 @@ Host star3090
 Host star2080
   HostName 210.28.134.31
   User kyb
-  # ProxyCommand nc -X 5 -x 127.0.0.1:1080 %h %p
+
+  # RemoteForward 127.0.0.1:17890 127.0.0.1:7890
+  # ExitOnForwardFailure yes
+
+  # ServerAliveInterval 30
+  # ServerAliveCountMax 3
+
+  # ControlMaster auto
+  # ControlPersist 10m
+  # ControlPath ~/.ssh/cm-%C
+
+Host vps
+  HostName 38.207.176.128
+  User starwink
+  Port 10121
+
+Host stara6000
+  Hostname 10.60.200.2
+  User kongyubo
+  Port 20100
+
+Host stara6001
+  Hostname 10.60.200.2
+  User kongyubo
+  Port 20096
+
+Host stara6002
+  Hostname 10.60.200.2
+  User kongyubo
+  Port 20107

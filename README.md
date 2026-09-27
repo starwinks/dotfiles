@@ -9,6 +9,7 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 ```
 .dotfiles/               # Git repository root
 ├── deploy.sh            # Deployment script (creates symlinks)
+├── mirrors.sh           # Configure and verify download mirrors (see Mirrors)
 ├── README.md            # This file
 ├── .gitignore
 │
@@ -31,8 +32,11 @@ My shell configuration managed via Git with symbolic links for easy deployment a
 │
 ├── uv/                  # uv configuration (~/.config/uv/uv.toml ->)
 │   └── uv.toml           # Python package index configuration
-├── npm/                 # npm configuration (~/.npmrc ->)
-│   └── npmrc             # Node package registry configuration
+├── pip/                 # pip configuration (~/.config/pip/pip.conf ->)
+│   └── pip.conf          # Python package index configuration
+├── npm/                 # npm and yarn configuration
+│   ├── npmrc             # Node package registry configuration (~/.npmrc ->)
+│   └── yarnrc            # Yarn registry configuration (~/.yarnrc ->)
 ├── apt/                 # Current machine apt source snapshot (not auto-linked)
 │   └── sources.list.d/   # Ubuntu, Docker, GitHub CLI and CUDA sources
 │
@@ -82,9 +86,91 @@ ignored by Git and are never linked or copied by `deploy.sh`. The public
 - The complete `~/.config/nvim` directory is managed by the `nvim/` symlink
 - LazyVim configuration and plugin lockfile are kept together in the repository
 
-### uv / npm
+### uv / pip / npm / yarn
 - `uv/uv.toml` is linked to `~/.config/uv/uv.toml`
-- `npm/npmrc` is linked to `~/.npmrc`
+- `pip/pip.conf` is linked to `~/.config/pip/pip.conf`
+- `npm/npmrc` is linked to `~/.npmrc`, `npm/yarnrc` to `~/.yarnrc`
+
+## Mirrors
+
+`mirrors.sh` owns every download source: `uv/uv.toml`, `pip/pip.conf`,
+`npm/npmrc`, `npm/yarnrc`, `conda/condarc` and the `>>> mirrors >>>` block of
+both export modules. It never writes outside the repository, so deploy.sh links
+the result into `$HOME`.
+
+```bash
+bash mirrors.sh status                    # what the repository configures now
+bash mirrors.sh probe --quick             # fetch a small artifact per source
+bash mirrors.sh probe                     # plus git remotes, a brew bottle and a uv Python
+bash mirrors.sh apply --dry-run           # show the diff of a profile change
+bash mirrors.sh apply                     # `current` profile (mirrors, default)
+bash mirrors.sh apply --mirror official   # upstream sources, export block emptied
+```
+
+Profiles are `current`, `official` and `custom`. Any URL can also be overridden
+per call: `--npm-registry`, `--pypi-index`, `--node-mirror`, `--conda-channel`,
+`--conda-default-channel` (repeatable), `--uv-python-mirror`,
+`--brew-bottle-domain`, `--brew-api-domain`, `--brew-git-remote`,
+`--brew-core-git-remote`, `--brew-cask-git-remote`, `--hf-endpoint`. `apply` is
+idempotent, and applying a profile twice leaves every file byte-identical.
+
+### One shot on a machine without the dotfiles
+
+`--home` writes into a user directory instead of the repository, so a machine
+that already has fnm, uv, conda, brew and a Hugging Face client only needs one
+command:
+
+```bash
+bash mirrors.sh apply --home "$HOME"
+bash mirrors.sh status --home "$HOME"     # what landed
+```
+
+That is the whole mirror setup: `.config/uv/uv.toml`, `.config/pip/pip.conf`,
+`.npmrc`, `.yarnrc`, `.condarc`, plus the `>>> mirrors >>>` block in the shell
+files that actually get read, because they differ per invocation:
+
+| file | read by |
+|------|---------|
+| `.zshrc` | interactive zsh (`zsh -lic`) |
+| `.zshenv` | every zsh, including the non-interactive one sshd starts |
+| `.bashrc` | interactive bash (`bash -ic`) |
+| `.bash_profile`, `.bash_login` or `.profile` | login bash and dash (`bash -lc`) |
+
+The login file is only touched when it does not already source `.bashrc`, so
+nothing is duplicated. New blocks are inserted after the shell file's leading
+comments rather than appended at the end: a `.bashrc` that returns early for
+non-interactive shells (the usual Ubuntu guard) never reaches a block below it,
+which would leave `bash -lc` without the mirrors. An existing rc file keeps its
+content, a symlinked one is left alone (the dotfiles own it then, and the block
+belongs in the export modules), and a shell family whose rc file is a symlink
+gets no extra files. Config files take effect immediately; the exports need a
+new shell. One gap is unavoidable: `ssh host 'cmd'` where the login shell is
+bash runs a non-interactive, non-login bash that reads no rc file at all - use
+`ssh host 'bash -lc cmd'` or run the command from a login shell.
+
+Over SSH, without copying the script across first:
+
+```bash
+ssh server 'bash -s apply --home "$HOME"' < mirrors.sh
+```
+
+Installer downloads are deliberately not mirrored: `astral.sh/uv/install.sh`
+and `fnm.vercel.app/install` are reachable as-is, and nobody mirrors
+`astral-sh/uv` releases (NJU's `github-release` carries only
+`python-build-standalone`). Miniconda, however, is mirrored at
+`https://mirror.nju.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh`.
+
+Notes that are easy to get wrong:
+
+- `UV_PYTHON_INSTALL_MIRROR` has to live in the shell environment: uv silently
+  ignores a `python-install-mirror` key in `uv.toml`.
+- The NJU github-release mirror has no `/releases/download` segment:
+  `https://mirror.nju.edu.cn/github-release/astral-sh/python-build-standalone`.
+- USTC's bottle host answers 403 to a bare `curl/...` user agent, so anything
+  other than brew has to identify itself.
+- `conda/condarc` points `defaults` at mirrors through `default_channels`;
+  without that, every repodata refresh pulls ~159 MB from repo.anaconda.com.
+  Upstream `pkgs/free` is frozen at Python <= 3.6 and is not listed.
 
 ### apt
 - Active apt source files are kept as a snapshot under `apt/sources.list.d/`
@@ -101,8 +187,9 @@ bash deploy.sh
 writes below the selected home and data directories and never uses `sudo`, `apt`,
 `chsh` or a system-wide prefix.
 
-The managed links are limited to Conda, Git, fnm/Node/npm, Neovim, SSH, uv, Vim
-and Zsh. Machine-local modules are intentionally outside deploy's scope.
+The managed links are limited to Conda, Git, fnm/Node/npm/yarn, Neovim, SSH,
+pip, uv, Vim and Zsh. Machine-local modules are intentionally outside deploy's
+scope.
 Bash, `.profile`, apt sources and repository machine-specific modules are outside
 deploy's scope.
 

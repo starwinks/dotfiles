@@ -27,3 +27,4 @@ if [ -f "$HOME/.cargo/env" ]; then
 fi
 
 export PATH
+. "$HOME/.local/bin/env"

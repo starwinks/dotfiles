@@ -1,5 +1,5 @@
 [user]
-	email = 241220117@smail.nju.edu.cn
+	email = starwink08@gmail.com
 	name = starwink
 [core]
 	editor = nvim
@@ -14,9 +14,6 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
-[safe]
-	directory = /home/starwink/local-shell-mcp/workspaces/default/pos-enc
-	directory = /home/starwink/local-shell-mcp/workspaces/default/vibe-os
 [credential]
 	helper = cache
 [filter "lfs"]
@@ -24,3 +21,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[url "git@github.com:"]
+	insteadOf = https://github.com/

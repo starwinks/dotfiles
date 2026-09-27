@@ -58,3 +58,5 @@ done
 if [[ -r "$HOME/.p10k.zsh" ]] && (( $+functions[p10k] )); then
   source "$HOME/.p10k.zsh"
 fi
+
+. "$HOME/.local/bin/env"

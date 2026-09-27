@@ -1,7 +1,13 @@
 channel_priority: flexible
 auto_activate: false
 show_channel_urls: true
+
 channels:
-  - https://mirrors.nju.edu.cn/anaconda/cloud/conda-forge/
-  - https://mirrors.nju.edu.cn/anaconda/pkgs/main/
-  - https://mirrors.nju.edu.cn/anaconda/pkgs/free/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
+  - defaults
+
+# `defaults` resolves through these channels. Upstream pkgs/free is
+# frozen at Python <= 3.6 and is deliberately not listed.
+default_channels:
+  - https://mirror.nju.edu.cn/anaconda/pkgs/main
+  - https://mirror.nju.edu.cn/anaconda/pkgs/r
