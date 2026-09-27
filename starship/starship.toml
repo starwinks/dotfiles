@@ -22,12 +22,13 @@ $haskell\
 $python\
 [](fg:green bg:sapphire)\
 $conda\
-[](fg:sapphire bg:lavender)\
-$time\
-[ ](fg:lavender)\
-$cmd_duration\
+[ ](fg:sapphire)\
 $line_break\
 $character"""
+
+right_format = """\
+$cmd_duration\
+$time"""
 
 palette = 'catppuccin_mocha'
 
@@ -150,8 +151,8 @@ ignore_base = false
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:lavender"
-format = '[[  $time ](fg:crust bg:lavender)]($style)'
+style = "bg:lavender fg:crust"
+format = '[](lavender)[  $time ]($style)[](lavender)'
 
 [line_break]
 disabled = true
@@ -166,12 +167,11 @@ vimcmd_replace_symbol = '[❮](bold fg:lavender)'
 vimcmd_visual_symbol = '[❮](bold fg:yellow)'
 
 [cmd_duration]
-show_milliseconds = true
-format = " in $duration "
-style = "bg:lavender"
+min_time = 2000
+show_milliseconds = false
+style = "bg:yellow fg:crust"
+format = '[](yellow)[  $duration ]($style)[](yellow) '
 disabled = false
-show_notifications = true
-min_time_to_notify = 45000
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
