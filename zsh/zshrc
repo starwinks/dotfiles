@@ -1,10 +1,10 @@
 # =============================================================================
-# ~/.zshrc - Oh My Zsh configuration with modular design
+# ~/.zshrc - Modern native Zsh configuration with Starship prompt
 # Source: ~/.dotfiles/zsh/zshrc
 # Managed via dotfiles git repo with symbolic links
 # =============================================================================
 
-# Load machine-local paths before instant prompt and any other startup code.
+# Load machine-local paths before startup code.
 DOTFILES_PATHS_FILE="${DOTFILES_PATHS_FILE:-$HOME/.config/dotfiles/paths.env}"
 [[ -r "$DOTFILES_PATHS_FILE" ]] && source "$DOTFILES_PATHS_FILE"
 
@@ -12,51 +12,33 @@ DOTFILES_PATHS_FILE="${DOTFILES_PATHS_FILE:-$HOME/.config/dotfiles/paths.env}"
 : "${DOTFILES_DATA:=$DOTFILES_HOME}"
 export DOTFILES_HOME DOTFILES_DATA
 
-# Enable Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# Path to Oh My Zsh installation
-export ZSH="${DOTFILES_OH_MY_ZSH_DIR:-$HOME/.oh-my-zsh}"
-
-# Theme
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Plugins
-plugins=(
-    git
-    z
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-)
-
-[[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
+# Prevent Conda from polluting prompt with raw text
+export CONDA_CHANGEPS1=no
 
 # =============================================================================
-# Module loading (similar to bash modular design)
+# Module loading
 # =============================================================================
 ZSH_MODULES_DIR="${${(%):-%x}:A:h}/modules"
 
-# Load shared modules first. secrets.zsh is intentionally optional because it
-# is a per-machine, gitignored file.
-for module in exports.zsh secrets.zsh func.zsh alias.zsh; do
+# Core shell modules:
+# exports -> secrets -> history -> completion -> keybindings -> func -> alias -> plugins
+for module in exports.zsh secrets.zsh history.zsh completion.zsh keybindings.zsh func.zsh alias.zsh plugins.zsh; do
   module_file="$ZSH_MODULES_DIR/$module"
   [[ -r "$module_file" ]] && source "$module_file"
 done
 
-# Load machine-specific modules when they exist. These files are gitignored,
-# so a fresh clone without local files keeps the shared configuration portable.
+# Machine-specific modules (gitignored)
 for module in exports.local.zsh func.local.zsh alias.local.zsh; do
   module_file="$ZSH_MODULES_DIR/$module"
   [[ -r "$module_file" ]] && source "$module_file"
 done
 
 # =============================================================================
-# P10k configuration
+# Starship prompt initialization
 # =============================================================================
-if [[ -r "$HOME/.p10k.zsh" ]] && (( $+functions[p10k] )); then
-  source "$HOME/.p10k.zsh"
+if (( $+commands[starship] )); then
+  eval "$(starship init zsh)"
 fi
 
-. "$HOME/.local/bin/env"
+# Machine-specific environment script
+[[ -r "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
